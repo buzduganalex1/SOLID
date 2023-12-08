@@ -1,48 +1,61 @@
 ```C#
 using System;
-using System.Collections.Generic;
 
-// Interface for email providers
-interface IEmailProvider
+class Customer
 {
-    void SendEmail(string to, string subject, string message);
+    public string Name { get; set; }
+    public string Email { get; set; }
 }
 
-// Email sender class responsible for sending emails
-class EmailSender
-{
-    private readonly IEmailProvider _emailProvider;
-
-    public EmailSender(IEmailProvider emailProvider)
-    {
-        _emailProvider = emailProvider;
-    }
-
-    public void SendEmail(string to, string subject, string message)
-    {
-        // Business logic for sending an email
-        Console.WriteLine($"Sending email to: {to}");
-        _emailProvider.SendEmail(to, subject, message);
-    }
-}
-
-// Concrete email provider using SMTP
-class SmtpEmailProvider : IEmailProvider
+// Concrete email sending service
+class SmtpEmailService
 {
     public void SendEmail(string to, string subject, string message)
     {
-        // Implementation for sending emails via SMTP
+        // SMTP email sending code
         Console.WriteLine($"SMTP Email sent to: {to}, Subject: {subject}, Message: {message}");
     }
 }
 
-// Concrete email provider using a third-party API
-class ApiEmailProvider : IEmailProvider
+class ApiEmailService
 {
     public void SendEmail(string to, string subject, string message)
     {
-        // Implementation for sending emails using a third-party API
+        // Email sending using a third-party API
         Console.WriteLine($"API Email sent to: {to}, Subject: {subject}, Message: {message}");
+    }
+}
+
+class EmailService
+{
+    private readonly SmtpEmailService _smtpEmailSender;
+    private readonly ApiEmailService _apiEmailSender;
+
+    public EmailService()
+    {
+        _smtpEmailSender = new SmtpEmailService();
+        _apiEmailSender = new ApiEmailService();
+    }
+
+    public void SendEmailUsingSmtp(string to, string subject, string message)
+    {
+        // Business logic for sending an email using SMTP
+        Console.WriteLine($"Sending email using SMTP to: {to}");
+        _smtpEmailSender.SendEmail(to, subject, message);
+    }
+
+    public void SendEmailUsingApi(string to, string subject, string message)
+    {
+        // Business logic for sending an email using a third-party API
+        Console.WriteLine($"Sending email using API to: {to}");
+        _apiEmailSender.SendEmail(to, subject, message);
+    }
+
+    // Violation of SRP: Additional unrelated functionality
+    public void CalculateCustomerDiscount(Customer customer)
+    {
+        // Business logic for calculating a discount for the customer
+        Console.WriteLine($"Calculating discount for customer: {customer.Name}");
     }
 }
 
@@ -50,17 +63,18 @@ class Program
 {
     static void Main()
     {
-        // Create instances of email providers
-        IEmailProvider smtpProvider = new SmtpEmailProvider();
-        IEmailProvider apiProvider = new ApiEmailProvider();
+        // Create an instance of the EmailService
+        EmailService emailService = new EmailService();
 
-        // Create an email sender with SMTP provider
-        var emailSenderWithSmtp = new EmailSender(smtpProvider);
-        emailSenderWithSmtp.SendEmail("example@example.com", "Welcome!", "Welcome to our website!");
+        // Sending an email using SMTP
+        emailService.SendEmailUsingSmtp("example@example.com", "Welcome!", "Welcome to our website!");
 
-        // Create an email sender with API provider
-        var emailSenderWithApi = new EmailSender(apiProvider);
-        emailSenderWithApi.SendEmail("user@example.com", "Special Offer", "Check out our special offers!");
+        // Sending an email using API
+        emailService.SendEmailUsingApi("user@example.com", "Special Offer", "Check out our special offers!");
+
+        // Calculate a customer discount (Unrelated to email service)
+        var customer = new Customer { Name = "John Doe", Email = "john@example.com" };
+        emailService.CalculateCustomerDiscount(customer);
 
         Console.ReadLine();
     }
