@@ -51,7 +51,6 @@ class EmailService
         _apiEmailSender.SendEmail(to, subject, message);
     }
 
-    // Violation of SRP: Additional unrelated functionality
     public void CalculateCustomerDiscount(Customer customer)
     {
         // Business logic for calculating a discount for the customer
